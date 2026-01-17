@@ -1,6 +1,7 @@
 local helpers = require("swagger-preview.helpers")
 
 local M = {}
+local job = nil
 
 ---@class SwaggerPreview.SetupOptions
 ---@field port integer?
@@ -45,6 +46,11 @@ end
 
 ---@param spec_path string
 M.start_server = function(spec_path)
+	if job then
+		vim.notify("SwaggerPreview server is already running.", vim.log.levels.WARN)
+		return
+	end
+
 	if not spec_path then
 		vim.notify("A path to the openapi specification file must be specified.", vim.log.levels.ERROR)
 		return
@@ -55,7 +61,7 @@ M.start_server = function(spec_path)
 		vim.system(cmd)
 	end)
 	M.spec_path = spec_path
-	local job = vim.system({
+	job = vim.system({
 		"deno",
 		"run",
 		"--allow-env=OPENAPI_SPEC,PORT,HANDSHAKE_SOCKET",
@@ -78,6 +84,18 @@ M.start_server = function(spec_path)
 			vim.notify(obj.stderr, vim.log.levels.ERROR)
 		end
 	end)
+end
+
+M.stop_server = function()
+	if not job then
+		vim.notify("SwaggerPreview server is not running.", vim.log.levels.WARN)
+		return
+	end
+
+	job:kill("sigterm")
+	job = nil
+
+	vim.notify("SwaggerPreview server stopped.", vim.log.levels.INFO)
 end
 
 return M
