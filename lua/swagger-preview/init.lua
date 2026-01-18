@@ -20,6 +20,15 @@ M.setup = function(opts)
 	opts = opts or {}
 	M.port = opts.port or 0
 	M.app = opts.app or { "xdg-open" }
+
+	local augroup = vim.api.nvim_create_augroup("SwaggerPreviewAugroup", { clear = true })
+
+	vim.api.nvim_create_autocmd("VimLeavePre", {
+		group = augroup,
+		callback = function()
+			M.stop_server()
+		end,
+	})
 end
 
 ---@param callback_on_port fun(port: string)
