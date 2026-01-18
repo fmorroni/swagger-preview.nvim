@@ -3,8 +3,6 @@ local helpers = require("swagger-preview.helpers")
 local M = {}
 ---@type vim.SystemObj?
 local server_job = nil
----@type vim.SystemObj?
-local browser_job = nil
 
 ---@class SwaggerPreview.SetupOptions
 ---@field port integer?
@@ -31,36 +29,6 @@ M.setup = function(opts)
 	})
 end
 
----@param callback_on_port fun(port: string)
----@return string
-local start_handshake_socket = function(callback_on_port)
-	local socket_path = vim.fn.tempname() .. ".sock"
-
-	local server = vim.uv.new_pipe(false)
-	assert(server)
-
-	server:bind(socket_path)
-	server:listen(1, function(err)
-		assert(not err, err)
-
-		local client = vim.uv.new_pipe(false)
-		assert(client)
-		server:accept(client)
-
-		client:read_start(function(_, port)
-			if port then
-				callback_on_port(port)
-			end
-
-			client:close()
-			server:close()
-			os.remove(socket_path)
-		end)
-	end)
-
-	return socket_path
-end
-
 ---@param spec_path string
 ---@return SwaggerPreview.Message?
 M.start_server = function(spec_path)
@@ -74,32 +42,22 @@ M.start_server = function(spec_path)
 		return { message = "A path to the openapi specification file must be specified.", level = vim.log.levels.ERROR }
 	end
 
-	local socket_path = start_handshake_socket(function(port)
-		local cmd = { unpack(M.app) }
-		table.insert(cmd, "http://localhost:" .. port)
-		-- TODO: This is actually dumb. I don't need the port here, I can just open the browser
-		-- from deno along with the server.... Pass command through env var with `vim.json.encode(M.app)`.
-		browser_job = vim.system(cmd)
-		P({ "Browser start:", browser_job })
-	end)
-
 	M.spec_path = spec_path
 	server_job = vim.system({
 		"deno",
 		"run",
-		"--allow-env=OPENAPI_SPEC,PORT,HANDSHAKE_SOCKET",
+		"--allow-env=OPENAPI_SPEC,PORT,APP",
 		-- Must allow all localhost ports because if `M.port == 0` then a random port will be chosen.
 		"--allow-net=localhost",
 		-- Read and write permissions needed for socket interaction.
-		"--allow-read",
-		"--allow-write",
+		"--allow-run",
 		string.format("%s/web/server/main.ts", helpers.plugin_root()),
 	}, {
 		env = {
 			NO_COLOR = "true",
 			OPENAPI_SPEC = M.spec_path,
 			PORT = M.port,
-			HANDSHAKE_SOCKET = socket_path,
+			APP = vim.json.encode(M.app),
 		},
 		text = true,
 	}, function(obj)
@@ -117,11 +75,6 @@ M.stop_server = function()
 
 	server_job:kill("sigterm")
 	server_job = nil
-
-	if browser_job then
-		browser_job:kill("sigkill")
-		browser_job = nil
-	end
 
 	return { message = "SwaggerPreview server stopped.", level = vim.log.levels.INFO }
 end
