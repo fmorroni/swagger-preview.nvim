@@ -8,7 +8,7 @@ export const Errors = {
   MissingSocket: { code: 2, message: "HANDSHAKE_SOCKET not set" },
 } as const satisfies Record<string, ServerError>;
 
-export function exitWithMessage(error: ServerError) {
+export function exitWithMessage(error: ServerError): never {
   console.error(error.message);
   Deno.exit(error.code);
 }
