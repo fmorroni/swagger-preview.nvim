@@ -9,7 +9,7 @@ vim.api.nvim_create_user_command("SwaggerPreviewStart", function()
 		return
 	end
 
-	local error = sp.start_server(spec_path)
+	local error = sp.start_server(spec_path, buf)
 	if error then
 		vim.notify(error.message, error.level)
 	end

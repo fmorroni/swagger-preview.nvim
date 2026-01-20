@@ -1,10 +1,12 @@
 {
   "tasks": {
-    "dev": "deno run --allow-env='OPENAPI_SPEC,PORT,APP' --allow-net=localhost --allow-read --allow-run --watch main.ts",
-    "run": "deno run --allow-env='OPENAPI_SPEC,PORT,APP' --allow-net=localhost --allow-read --allow-run main.ts",
+    "dev": "deno run --allow-net=localhost --allow-read --allow-write --allow-run --watch main.ts",
+    "run": "deno run --allow-net=localhost --allow-read --allow-write --allow-run main.ts",
     "test": "deno test --allow-net --allow-read --allow-write tests/*.ts"
   },
   "imports": {
+    "@logtape/file": "jsr:@logtape/file@^2.0.0",
+    "@logtape/logtape": "jsr:@logtape/logtape@^2.0.0",
     "@std/assert": "jsr:@std/assert@1",
     "@std/http": "jsr:@std/http@^1.0.23"
   }

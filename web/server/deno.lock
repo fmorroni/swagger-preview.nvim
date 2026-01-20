@@ -1,6 +1,8 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@logtape/file@2": "2.0.0",
+    "jsr:@logtape/logtape@2": "2.0.0",
     "jsr:@std/assert@1": "1.0.16",
     "jsr:@std/cli@^1.0.25": "1.0.25",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
@@ -11,10 +13,21 @@
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.6": "1.0.6",
+    "jsr:@std/path@^1.1.0": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/streams@^1.0.16": "1.0.16"
   },
   "jsr": {
+    "@logtape/file@2.0.0": {
+      "integrity": "beb77f53a5792f4a3e22a8cbdb0f78d2c92c62700ccbff42eac7cf42cb3dac42",
+      "dependencies": [
+        "jsr:@logtape/logtape",
+        "jsr:@std/path@^1.1.0"
+      ]
+    },
+    "@logtape/logtape@2.0.0": {
+      "integrity": "c4f2d7684a8239ad9b3fc2fd4ade6eec9f04cdb3a1741bae83f370b4b34253b2"
+    },
     "@std/assert@1.0.16": {
       "integrity": "6a7272ed1eaa77defe76e5ff63ca705d9c495077e2d5fd0126d2b53fc5bd6532",
       "dependencies": [
@@ -46,7 +59,7 @@
         "jsr:@std/html",
         "jsr:@std/media-types",
         "jsr:@std/net",
-        "jsr:@std/path",
+        "jsr:@std/path@^1.1.4",
         "jsr:@std/streams"
       ]
     },
@@ -71,6 +84,8 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@logtape/file@2",
+      "jsr:@logtape/logtape@2",
       "jsr:@std/assert@1",
       "jsr:@std/http@^1.0.23"
     ]
