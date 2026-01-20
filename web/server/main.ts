@@ -5,7 +5,7 @@ import { Errors, exitWithMessage } from "./errors.ts";
 import { createServerHandler } from "./server.ts";
 import { StdinCommand } from "./stdin-commands.ts";
 
-type LogLevel = "info" | "trace" | "debug" | "warning" | "error" | "fatal"
+type LogLevel = "trace" | "debug" | "info" | "warning" | "error" | "fatal";
 
 const options: ParseArgsOptionsConfig = {
   "spec-path": {
@@ -34,7 +34,7 @@ const app = values.app as string;
 if (!values["log-file"]) values["log-file"] = "swagger-preview.log";
 const logFile = values["log-file"] as string;
 if (!values["log-level"]) values["log-level"] = "info";
-const logLevel = values["log-file"] as LogLevel
+const logLevel = values["log-level"] as LogLevel;
 
 await configure({
   sinks: { console: getConsoleSink(), file: getFileSink(logFile) },
@@ -66,6 +66,6 @@ while (true) {
   const cmd = new TextDecoder().decode(buf) as StdinCommand;
   switch (cmd) {
     case StdinCommand.refreshWindow:
-      logger.debug("Should refresh window");
+      logger.info("Should refresh window");
   }
 }

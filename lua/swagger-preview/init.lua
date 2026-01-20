@@ -11,8 +11,8 @@ local augroup = nil
 
 ---@enum LogLevel
 local LogLevel = {
+  trace = "trace",
 	debug = "debug",
-	trace = "trace",
 	info = "info",
 	warning = "warning",
 	error = "error",
@@ -34,7 +34,7 @@ M.setup = function(opts)
 	opts = opts or {}
 	M.port = opts.port or 0
 	M.app = opts.app or { "xdg-open" }
-  ---@type LogLevel
+	---@type LogLevel
 	M.log_level = opts.log_level or LogLevel.info
 
 	vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -76,7 +76,7 @@ M.start_server = function(spec_path, bufnr)
 		"--port=" .. M.port,
 		"--app=" .. table.concat(M.app, " "),
 		"--log-file=" .. log_file,
-		"--log-level=" .. log_file,
+		"--log-level=" .. M.log_level,
 	}, {
 		text = true,
 		stdin = true,

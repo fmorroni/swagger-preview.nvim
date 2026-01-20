@@ -5,7 +5,10 @@ const logger = getLogger(["server"]);
 
 const SWAGGER_UI_ROOT = new URL("../swagger-ui", import.meta.url).pathname;
 
-export function createServerHandler(opts: { specPath: string, logFile: string }) {
+export function createServerHandler(opts: {
+  specPath: string;
+  logFile: string;
+}) {
   return async function handler(req: Request): Promise<Response> {
     try {
       logger.debug("Request: {req}", { req });
@@ -25,7 +28,9 @@ export function createServerHandler(opts: { specPath: string, logFile: string })
     } catch (err) {
       // TODO: when the errror originates at `serveDir` it doesn't trigger this.
       logger.error("createServerHandler error: {err}", { err });
-      return new Response("Internal error, check logs at " + opts.logFile, { status: 500 });
+      return new Response("Internal error, check logs at " + opts.logFile, {
+        status: 500,
+      });
     }
   };
 }
