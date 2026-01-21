@@ -1,5 +1,5 @@
 import { getLogger } from "@logtape/logtape";
-import { serveDir } from "@std/http/file-server";
+import { serveDir, serveFile } from "@std/http/file-server";
 
 const logger = getLogger(["server"]);
 
@@ -10,21 +10,13 @@ export function createServerHandler(opts: {
   logFile: string;
 }) {
   return async function handler(req: Request): Promise<Response> {
+    logger.debug("Request: {req}", { req });
+
+    const url = new URL(req.url);
     try {
-      logger.debug("Request: {req}", { req });
-
-      const url = new URL(req.url);
-
-      if (url.pathname === "/openapi") {
-        const spec = await Deno.open(opts.specPath, { read: true });
-        return new Response(spec.readable);
-      }
-
-      return await serveDir(req, {
-        fsRoot: SWAGGER_UI_ROOT,
-        showIndex: true,
-        showDirListing: false,
-      });
+      const res = await dispatch(req, url, opts);
+      logger.debug("Response: {res}", { res });
+      return res;
     } catch (err) {
       // TODO: when the errror originates at `serveDir` it doesn't trigger this.
       logger.error("createServerHandler error: {err}", { err });
@@ -33,4 +25,21 @@ export function createServerHandler(opts: {
       });
     }
   };
+}
+
+function dispatch(
+  req: Request,
+  url: URL,
+  opts: { specPath: string },
+): Promise<Response> {
+  if (url.pathname === "/openapi") {
+    return serveFile(req, opts.specPath);
+  }
+
+  return serveDir(req, {
+    fsRoot: SWAGGER_UI_ROOT,
+    showIndex: true,
+    showDirListing: false,
+    quiet: true,
+  });
 }
