@@ -5,18 +5,18 @@ import { StdinCommand } from "./stdin-commands.ts";
 import { configureLogtape } from "./logtape-config.ts";
 import { parseServerArgs } from "./args.ts";
 
-const { specPath, port, app, logFile, logLevel } = parseServerArgs();
+const { specRoot, specMainFile, port, app, logFile, logLevel } = parseServerArgs();
 
 configureLogtape(logFile, logLevel);
 
 const logger = getLogger(["server"]);
 
-const handler = createServerHandler({ specPath, logFile });
+const handler = createServerHandler({ specRoot, specMainFile, logFile });
 
 const server = Deno.serve({ hostname: "localhost", port }, handler);
 
 const [cmd, ...args] = app.split(" ");
-args.push("http://localhost:" + server.addr.port);
+args.push(`http://localhost:${server.addr.port}/swagger-ui`);
 const command = new Deno.Command(cmd, { args });
 
 const { code, stderr } = await command.output();

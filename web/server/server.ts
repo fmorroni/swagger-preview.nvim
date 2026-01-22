@@ -5,10 +5,7 @@ const logger = getLogger(["server"]);
 
 const SWAGGER_UI_ROOT = new URL("../swagger-ui", import.meta.url).pathname;
 
-export function createServerHandler(opts: {
-  specPath: string;
-  logFile: string;
-}) {
+export function createServerHandler(opts: { specRoot: string; specMainFile: string; logFile: string }) {
   return async function handler(req: Request): Promise<Response> {
     logger.debug("Request: {req}", { req });
 
@@ -27,19 +24,20 @@ export function createServerHandler(opts: {
   };
 }
 
-function dispatch(
-  req: Request,
-  url: URL,
-  opts: { specPath: string },
-): Promise<Response> {
+function dispatch(req: Request, url: URL, opts: { specRoot: string; specMainFile: string }): Promise<Response> {
   if (url.pathname === "/openapi") {
-    return serveFile(req, opts.specPath);
+    return serveFile(req, `${opts.specRoot}/${opts.specMainFile}`);
   }
 
-  return serveDir(req, {
-    fsRoot: SWAGGER_UI_ROOT,
-    showIndex: true,
-    showDirListing: false,
-    quiet: true,
-  });
+  if (url.pathname.startsWith("/swagger-ui")) {
+    return serveDir(req, {
+      fsRoot: SWAGGER_UI_ROOT,
+      urlRoot: "swagger-ui",
+      showIndex: true,
+      showDirListing: false,
+      quiet: true,
+    });
+  }
+
+  return serveFile(req, `${opts.specRoot}/${url.pathname}`);
 }

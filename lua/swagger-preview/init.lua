@@ -11,7 +11,7 @@ local augroup = nil
 
 ---@enum LogLevel
 local LogLevel = {
-  trace = "trace",
+	trace = "trace",
 	debug = "debug",
 	info = "info",
 	warning = "warning",
@@ -44,23 +44,33 @@ M.setup = function(opts)
 	})
 end
 
----@param spec_path string
+---@param spec_root string
+---@param spec_main_file string
 ---@param bufnr integer
 ---@return SwaggerPreview.Message?
-M.start_server = function(spec_path, bufnr)
+M.start_server = function(spec_root, spec_main_file, bufnr)
 	if server_job then
 		---@type SwaggerPreview.Message
 		return { message = "SwaggerPreview server is already running.", level = vim.log.levels.WARN }
 	end
 
-	if not spec_path then
+	if not spec_root then
 		---@type SwaggerPreview.Message
-		return { message = "A path to the openapi specification file must be specified.", level = vim.log.levels.ERROR }
+		return {
+			message = "A path to the openapi specification root directory must be specified.",
+			level = vim.log.levels.ERROR,
+		}
+	end
+
+	if not spec_main_file then
+		---@type SwaggerPreview.Message
+		return { message = "The main specification file must be specified.", level = vim.log.levels.ERROR }
 	end
 
 	local log_file = vim.fn.stdpath("log") .. "/" .. "swagger-preview.log"
 
-	M.spec_path = spec_path
+	M.spec_root = spec_root
+	M.spec_main_file = spec_main_file
 	server_job = vim.system({
 		"deno",
 		"run",
@@ -72,7 +82,8 @@ M.start_server = function(spec_path, bufnr)
 		"--allow-read",
 		"--allow-write",
 		string.format("%s/web/server/main.ts", helpers.plugin_root()),
-		"--spec-path=" .. M.spec_path,
+		"--spec-root=" .. spec_root,
+		"--spec-main-file=" .. spec_main_file,
 		"--port=" .. M.port,
 		"--app=" .. table.concat(M.app, " "),
 		"--log-file=" .. log_file,
@@ -96,9 +107,11 @@ M.start_server = function(spec_path, bufnr)
 
 	vim.api.nvim_create_autocmd("BufWritePost", {
 		group = augroup,
-		buffer = bufnr,
+		pattern = spec_root .. "/**",
 		callback = function()
-			server_job:write(stdin_commands.refresh_window)
+			vim.schedule(function()
+				server_job:write(stdin_commands.refresh_window)
+			end)
 		end,
 	})
 end

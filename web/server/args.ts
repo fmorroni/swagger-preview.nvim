@@ -3,7 +3,11 @@ import { Errors, exitWithMessage } from "./errors.ts";
 import { LogLevel } from "@logtape/logtape";
 
 const options: ParseArgsOptionsConfig = {
-  "spec-path": {
+  "spec-root": {
+    type: "string",
+    short: "s",
+  },
+  "spec-main-file": {
     type: "string",
     short: "s",
   },
@@ -20,7 +24,8 @@ const options: ParseArgsOptionsConfig = {
 };
 
 export interface Args {
-  specPath: string;
+  specRoot: string;
+  specMainFile: string;
   port: number;
   app: string;
   logFile: string;
@@ -30,14 +35,16 @@ export interface Args {
 export function parseServerArgs(): Args {
   const { values } = parseArgs({ args: Deno.args, options });
 
-  if (!values["spec-path"]) exitWithMessage(Errors.MissingSpecPath);
+  if (!values["spec-root"]) exitWithMessage(Errors.MissingSpecRoot);
+  if (!values["spec-main-file"]) exitWithMessage(Errors.MissingSpecMainFile);
   if (!values.port) values.port = "0";
   if (!values.app) exitWithMessage(Errors.MissingApp);
   if (!values["log-file"]) values["log-file"] = "swagger-preview.log";
   if (!values["log-level"]) values["log-level"] = "info";
 
   return {
-    specPath: values["spec-path"] as string,
+    specRoot: values["spec-root"] as string,
+    specMainFile: values["spec-main-file"] as string,
     port: Number(values.port as string),
     app: values.app as string,
     logFile: values["log-file"] as string,
