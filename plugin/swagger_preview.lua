@@ -12,7 +12,7 @@ vim.api.nvim_create_user_command("SwaggerPreviewStart", function()
 	local spec_root = vim.fn.fnamemodify(spec_path, ":h")
 	local spec_main_file = vim.fn.fnamemodify(spec_path, ":t")
 
-	local error = sp.start_server(spec_root, spec_main_file, buf)
+	local error = sp.start_server(spec_root, spec_main_file)
 
 	if error then
 		vim.notify(error.message, error.level)

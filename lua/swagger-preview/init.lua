@@ -48,9 +48,8 @@ end
 
 ---@param spec_root string
 ---@param spec_main_file string
----@param bufnr integer
 ---@return SwaggerPreview.Message?
-M.start_server = function(spec_root, spec_main_file, bufnr)
+M.start_server = function(spec_root, spec_main_file)
 	if server_job then
 		---@type SwaggerPreview.Message
 		return {
