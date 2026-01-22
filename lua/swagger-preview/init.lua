@@ -101,9 +101,6 @@ M.start_server = function(spec_root, spec_main_file)
 	}, {
 		text = true,
 		stdin = true,
-		-- stderr = function(err, data)
-		-- 	P({ err, data })
-		-- end,
 		stdout = function(err, data)
 			if err then
 				vim.notify("Error on server stdout: " .. err)
