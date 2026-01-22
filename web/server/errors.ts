@@ -1,6 +1,4 @@
-import { getLogger } from "@logtape/logtape";
-
-const logger = getLogger(["server"]);
+import { Logger } from "@logtape/logtape";
 
 interface ServerError {
   code: number;
@@ -15,6 +13,11 @@ export const Errors = {
 } as const satisfies Record<string, ServerError>;
 
 export function exitWithMessage(error: ServerError): never {
+  console.error(error.message);
+  Deno.exit(error.code);
+}
+
+export function exitWithLog(error: ServerError, logger: Logger): never {
   logger.error(error.message);
   Deno.exit(error.code);
 }

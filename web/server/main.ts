@@ -1,5 +1,5 @@
 import { getLogger } from "@logtape/logtape";
-import { Errors, exitWithMessage } from "./errors.ts";
+import { Errors, exitWithLog } from "./errors.ts";
 import { createServerHandler } from "./server.ts";
 import { StdinCommand } from "./stdin-commands.ts";
 import { configureLogtape } from "./logtape-config.ts";
@@ -23,7 +23,7 @@ const { code, stderr } = await command.output();
 
 if (code !== 0) {
   logger.error(new TextDecoder().decode(stderr));
-  exitWithMessage(Errors.AppCommandFailure);
+  exitWithLog(Errors.AppCommandFailure, logger);
 }
 
 const decoder = new TextDecoder("utf-8");

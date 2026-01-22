@@ -37,8 +37,6 @@ export interface Args {
 export function parseServerArgs(): Args {
   const { values } = parseArgs({ args: Deno.args, options });
 
-  // BUG: logger isn't set yet when parsing arguments so the logger in `exitWithMessage`
-  // doesn't work!!!
   if (!values.app) exitWithMessage(Errors.MissingApp);
   if (!values.hostname) values.hostname = "localhost";
   if (!values["log-file"]) values["log-file"] = "swagger-preview.log";
