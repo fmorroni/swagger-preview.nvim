@@ -8,10 +8,10 @@ interface ServerError {
 }
 
 export const Errors = {
-  MissingSpecRoot: { code: 1, message: "--spec-root not set" },
-  MissingSpecMainFile: { code: 1, message: "--spec-main-file not set" },
-  MissingApp: { code: 2, message: "APP not set" },
-  AppCommandFailure: { code: 3, message: "Failed to run APP" },
+  AppCommandFailure: { code: 1, message: "Failed to run APP" },
+  MissingApp: { code: 2, message: "--app not set" },
+  MissingSpecRoot: { code: 3, message: "--spec-root not set" },
+  MissingSpecMainFile: { code: 4, message: "--spec-main-file not set" },
 } as const satisfies Record<string, ServerError>;
 
 export function exitWithMessage(error: ServerError): never {
