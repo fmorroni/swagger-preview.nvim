@@ -143,7 +143,7 @@ M.stop_server = function()
 		return { message = "SwaggerPreview server is not running.", level = vim.log.levels.WARN }
 	end
 
-	server_job:kill("sigterm")
+	server_job:write(stdin_commands.quit)
 	server_job = nil
 
 	vim.api.nvim_del_augroup_by_id(augroup)

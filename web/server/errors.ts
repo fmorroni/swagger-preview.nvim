@@ -10,6 +10,7 @@ export const Errors = {
   MissingApp: { code: 2, message: "--app not set" },
   MissingSpecRoot: { code: 3, message: "--spec-root not set" },
   MissingSpecMainFile: { code: 4, message: "--spec-main-file not set" },
+  ErrorStdinRead: { code: 5, message: "Error reading stdin" },
 } as const satisfies Record<string, ServerError>;
 
 export function exitWithMessage(error: ServerError): never {

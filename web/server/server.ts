@@ -1,5 +1,6 @@
 import { getLogger } from "@logtape/logtape";
 import { serveDir, serveFile } from "@std/http/file-server";
+import { initWebSocket } from "./stdin-commands.ts";
 
 const logger = getLogger(["server"]);
 
@@ -24,13 +25,19 @@ export function createServerHandler(opts: { specRoot: string; specMainFile: stri
   };
 }
 
-function dispatch(req: Request, url: URL, opts: { specRoot: string; specMainFile: string }): Promise<Response> {
+async function dispatch(req: Request, url: URL, opts: { specRoot: string; specMainFile: string }): Promise<Response> {
+  if (req.headers.get("upgrade") === "websocket") {
+    const { socket, response } = Deno.upgradeWebSocket(req);
+    initWebSocket(socket);
+    return response;
+  }
+
   if (url.pathname === "/openapi") {
-    return serveFile(req, `${opts.specRoot}/${opts.specMainFile}`);
+    return await serveFile(req, `${opts.specRoot}/${opts.specMainFile}`);
   }
 
   if (url.pathname.startsWith("/swagger-ui")) {
-    return serveDir(req, {
+    return await serveDir(req, {
       fsRoot: SWAGGER_UI_ROOT,
       urlRoot: "swagger-ui",
       showIndex: true,
@@ -39,5 +46,5 @@ function dispatch(req: Request, url: URL, opts: { specRoot: string; specMainFile
     });
   }
 
-  return serveFile(req, `${opts.specRoot}/${url.pathname}`);
+  return await serveFile(req, `${opts.specRoot}/${url.pathname}`);
 }

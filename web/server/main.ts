@@ -1,7 +1,6 @@
 import { getLogger } from "@logtape/logtape";
 import { Errors, exitWithLog } from "./errors.ts";
 import { createServerHandler } from "./server.ts";
-import { StdinCommand } from "./stdin-commands.ts";
 import { configureLogtape } from "./logtape-config.ts";
 import { parseServerArgs } from "./args.ts";
 
@@ -26,17 +25,6 @@ if (code !== 0) {
   exitWithLog(Errors.AppCommandFailure, logger);
 }
 
-const decoder = new TextDecoder("utf-8");
 const encoder = new TextEncoder();
 
 Deno.stdout.write(encoder.encode(server.addr.port.toString()));
-
-while (true) {
-  const buf = new Uint8Array(1);
-  await Deno.stdin.read(buf);
-  const cmd = decoder.decode(buf) as StdinCommand;
-  switch (cmd) {
-    case StdinCommand.refreshWindow:
-      logger.info("Should refresh window");
-  }
-}
