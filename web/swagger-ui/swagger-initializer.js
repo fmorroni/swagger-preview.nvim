@@ -13,7 +13,12 @@ window.onload = function () {
   socket.addEventListener("message", (event) => {
     switch (event.data) {
       case "r":
+        const currentScroll = window.scrollY;
         ui.specActions.download();
+
+        setTimeout(() => {
+          window.scrollTo({ behavior: "instant", top: currentScroll });
+        }, 500);
         break;
       default:
         console.log("Event", event);
