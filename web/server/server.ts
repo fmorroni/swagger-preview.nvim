@@ -33,7 +33,9 @@ async function dispatch(req: Request, url: URL, opts: { specRoot: string; specMa
   }
 
   if (url.pathname === "/openapi") {
-    return await serveFile(req, `${opts.specRoot}/${opts.specMainFile}`);
+    return await serveFile(req, `${opts.specRoot}/${opts.specMainFile}`, {
+      headers: { "Cache-Control": "no-cache" },
+    });
   }
 
   if (url.pathname.startsWith("/swagger-ui")) {
@@ -46,5 +48,20 @@ async function dispatch(req: Request, url: URL, opts: { specRoot: string; specMa
     });
   }
 
-  return await serveFile(req, `${opts.specRoot}/${url.pathname}`);
+  const res = await serveFile(req, `${opts.specRoot}/${url.pathname}`, {
+    headers: { "Cache-Control": "no-cache" },
+  });
+  return res;
+}
+
+async function serveFile(
+  req: Request,
+  filePath: string,
+  options?: ServeFileOptions & { headers: Record<string, string> }
+): Promise<Response> {
+  const res = await denoServeFile(req, filePath, options);
+  for (const name in options?.headers) {
+    res.headers.set(name, options.headers[name]);
+  }
+  return res;
 }

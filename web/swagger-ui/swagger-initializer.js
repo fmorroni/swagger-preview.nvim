@@ -13,8 +13,6 @@ window.onload = function () {
   socket.addEventListener("message", (event) => {
     switch (event.data) {
       case "r":
-        // TODO: find if there is better way that doesn't pollute the url.
-        ui.specActions.updateUrl("/openapi?ts=" + Date.now());
         ui.specActions.download();
         break;
       default:
