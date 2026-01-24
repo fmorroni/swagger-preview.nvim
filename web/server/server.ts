@@ -1,34 +1,53 @@
 import { getLogger } from "@logtape/logtape";
-import { serveDir, serveFile } from "@std/http/file-server";
+import { serveDir, serveFile as denoServeFile, ServeFileOptions } from "@std/http/file-server";
 import { initWebSocket } from "./stdin-commands.ts";
+import { Errors, exitWithLog } from "./errors.ts";
 
 const logger = getLogger(["server"]);
 
 const SWAGGER_UI_ROOT = new URL("../swagger-ui", import.meta.url).pathname;
 
-export function createServerHandler(opts: { specRoot: string; specMainFile: string; logFile: string }) {
-  return async function handler(req: Request): Promise<Response> {
+interface CreateServerHandlerReturn {
+  handler: Deno.ServeHandler;
+  setServerShutdown: (fn: () => Promise<void>) => void;
+}
+
+export function createServerHandler(opts: {
+  specRoot: string;
+  specMainFile: string;
+  logFile: string;
+}): CreateServerHandlerReturn {
+  let serverShutdown: (() => Promise<void>) | undefined;
+
+  function setServerShutdown(fn: () => Promise<void>) {
+    serverShutdown = fn;
+  }
+
+  const handler = async (req: Request): Promise<Response> => {
+    if (!serverShutdown) exitWithLog(Errors.UndefinedServerShutdown, logger);
+
     logger.debug("Request: {req}", { req });
 
     const url = new URL(req.url);
-    try {
-      const res = await dispatch(req, url, opts);
-      logger.debug("Response: {res}", { res });
-      return res;
-    } catch (err) {
-      // TODO: when the errror originates at `serveDir` it doesn't trigger this.
-      logger.error("createServerHandler error: {err}", { err });
-      return new Response("Internal error, check logs at " + opts.logFile, {
-        status: 500,
-      });
-    }
+    const res = await dispatch(req, url, serverShutdown, opts);
+
+    logger.debug("Response: {res}", { res });
+
+    return res;
   };
+
+  return { handler, setServerShutdown };
 }
 
-async function dispatch(req: Request, url: URL, opts: { specRoot: string; specMainFile: string }): Promise<Response> {
+async function dispatch(
+  req: Request,
+  url: URL,
+  serverShutdown: () => Promise<void>,
+  opts: { specRoot: string; specMainFile: string }
+): Promise<Response> {
   if (req.headers.get("upgrade") === "websocket") {
     const { socket, response } = Deno.upgradeWebSocket(req);
-    initWebSocket(socket);
+    initWebSocket(socket, serverShutdown);
     return response;
   }
 

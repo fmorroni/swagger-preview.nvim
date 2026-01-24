@@ -21,11 +21,11 @@ window.onload = function () {
         }, 500);
         break;
       default:
-        console.log("Event", event);
+        console.log("Unknown command", event);
     }
   });
 
-  socket.addEventListener("close", () => {
-    window.close();
+  socket.addEventListener("close", (event) => {
+    if (event.code === 1) window.close();
   });
 };

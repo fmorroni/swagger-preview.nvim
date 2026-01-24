@@ -10,9 +10,10 @@ configureLogtape(logFile, logLevel);
 
 const logger = getLogger(["server"]);
 
-const handler = createServerHandler({ specRoot, specMainFile, logFile });
+const { handler, setServerShutdown } = createServerHandler({ specRoot, specMainFile, logFile });
 
 const server = Deno.serve({ hostname, port }, handler);
+setServerShutdown(server.shutdown);
 
 const [cmd, ...args] = app.split(" ");
 args.push(`http://${hostname}:${server.addr.port}/swagger-ui`);
