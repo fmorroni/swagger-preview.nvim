@@ -11,7 +11,6 @@ export const Errors = {
   MissingSpecRoot: { code: 3, message: "--spec-root not set" },
   MissingSpecMainFile: { code: 4, message: "--spec-main-file not set" },
   ErrorStdinRead: { code: 5, message: "Error reading stdin" },
-  UndefinedServerShutdown: { code: 6, message: "Undefined server shutdown" },
 } as const satisfies Record<string, ServerError>;
 
 export function exitWithMessage(error: ServerError): never {

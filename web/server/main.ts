@@ -3,6 +3,7 @@ import { Errors, exitWithLog } from "./errors.ts";
 import { createServerHandler } from "./server.ts";
 import { configureLogtape } from "./logtape-config.ts";
 import { parseServerArgs } from "./args.ts";
+import { startStdinLoop } from "./stdin-commands.ts";
 
 const { app, hostname, logFile, logLevel, specRoot, specMainFile, port } = parseServerArgs();
 
@@ -10,10 +11,9 @@ configureLogtape(logFile, logLevel);
 
 const logger = getLogger(["server"]);
 
-const { handler, setServerShutdown } = createServerHandler({ specRoot, specMainFile, logFile });
+const handler = createServerHandler({ specRoot, specMainFile, logFile });
 
 const server = Deno.serve({ hostname, port }, handler);
-setServerShutdown(server.shutdown);
 
 const [cmd, ...args] = app.split(" ");
 args.push(`http://${hostname}:${server.addr.port}/swagger-ui`);
@@ -29,3 +29,5 @@ if (code !== 0) {
 const encoder = new TextEncoder();
 
 Deno.stdout.write(encoder.encode(server.addr.port.toString()));
+
+startStdinLoop(server.shutdown);
