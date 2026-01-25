@@ -1,16 +1,4 @@
-html {
-    box-sizing: border-box;
-    overflow: -moz-scrollbars-vertical;
-    overflow-y: scroll;
-}
-
-*,
-*:before,
-*:after {
-    box-sizing: inherit;
-}
-
-body {
-    margin: 0;
-    background: #fafafa;
+.swagger-ui .renderedMarkdown code {
+  padding: 1.4px 4.2px;
+  line-height: 1.6;
 }
